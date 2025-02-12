@@ -1,8 +1,33 @@
 #Sistema de gestión de inventario y ventas para Dulce Hogar
+import json
 
 inventario = []
 ventas = []
 articulos_vendidos = []
+
+# --- Carga y guardado de datos. ---
+def guardar_datos():
+    with open("inventario.json", "w") as archivo:
+        json.dump(inventario, archivo)
+    with open("ventas.json", "w") as archivo:
+        json.dump(ventas, archivo)
+    with open("articulos_vendidos.json", "w") as archivo:
+        json.dump(articulos_vendidos, archivo)
+    print("Datos guardados correctamente")
+
+def cargar_datos():
+    try:
+        with open("inventario.json", "r") as archivo:
+            inventario.extend(json.load(archivo))
+        with open("ventas.json", "r") as archivo:
+            ventas.extend(json.load(archivo))
+        with open("articulos_vendidos.json", "r") as archivo:
+            articulos_vendidos.extend(json.load(archivo))
+        print("Datos cargados correctamente.")
+    except FileNotFoundError:
+        print("No se encontraron los archivos de datos. Se iniciara con datos vacios.")
+
+# --- Inventario ---
 
 def registrar_producto():
     nombre = input("Nombre del producto: ")
@@ -12,6 +37,10 @@ def registrar_producto():
     inventario.append(producto)
     print("Producto registrado con éxito.")
 
+
+# --- Sistema TPV ---
+
+# Genera la nueva venta y le asigna un ID
 def nueva_venta():
     nombre_cliente = input("Nombre del cliente: ")
     total_productos = 0
@@ -22,6 +51,7 @@ def nueva_venta():
     print("Venta creada: ", id_venta)
     venta_producto(id_venta)
 
+# Agrega un producto a la venta con el id
 def agregar_producto_venta(id_venta, producto, cantidad, precio):
     nombre = producto ["nombre"]
     id_venta = id_venta
@@ -31,6 +61,7 @@ def agregar_producto_venta(id_venta, producto, cantidad, precio):
     producto = {"id": id_venta, "cantidad": cantidad, "nombre": nombre, "precio": precio, "subtotal": subtotal}
     articulos_vendidos.append(producto) 
 
+# Cierra la venta y la totaliza
 def totalizar_venta(id_venta):
     id_venta = id_venta
     articulos = 0
@@ -46,8 +77,7 @@ def totalizar_venta(id_venta):
     print("Venta finalizada total: ", total)
     print("Numero de Articulos: ", articulos)
 
-    
-
+# Menu TPV
 def venta_producto(id):
     while True:
         id_venta = id
@@ -79,18 +109,23 @@ def venta_producto(id):
             totalizar_venta(id_venta)
             break
 
+
+# --- Reportes ---
+# Muestra los productos en stock
 def mostrar_inventario():
     print("\n-- Inventario --")
     for producto in inventario:
         print(f"Nombre: {producto['nombre']}, Cantidad: {producto['cantidad']}, Precio: {producto['precio']} ")
 
+# Muestra todas las ventas 
 def mostrar_ventas():
     print("\n-- Ventas del dia --")
     for venta in ventas:
         print(f"Nombre de Cliente: {venta['nombre_cliente']}, Articulos: {venta['total_productos']}, Total Venta: ${venta['total']} ")
 
+# --- Menu principal ----
 
-
+cargar_datos()
 while True:
     print("\n-- Menú --")
     print("1. Registrar producto")
@@ -109,6 +144,7 @@ while True:
     elif opcion == "4":
         mostrar_ventas()
     elif opcion == "5":
+        guardar_datos()
         break
     else:
         print("Opcion invalidad. Intente de nuevo.")
