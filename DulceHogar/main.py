@@ -29,20 +29,78 @@ def cargar_datos():
         print("No se encontraron los archivos de datos. Se iniciara con datos vacios.")
 
 # --- Inventario ---
-
 def registrar_producto():
-    nombre = input("Nombre del producto: ")
-    cantidad = int(input("Cantidad: "))
-    precio = float(input("Precio: "))
-    producto = {"nombre": nombre, "cantidad": cantidad, "precio": precio}
-    inventario.append(producto)
-    print("Producto registrado con éxito.")
+    while True:
+        try:
+            nombre = input("Nombre del producto: ")
+            if not nombre:
+                print("El nombre no puede estar vacio")
+                continue
+            cantidad = int(input("Cantidad: "))
+            if not cantidad or cantidad < 0:
+                print("La cantidad no puede estar vacio o ser un numero negativo")
+                continue
+            precio = float(input("Precio: "))
+            if not precio or cantidad < 0:
+                print("Precio no puede estar vacio o ser numero negativo")
+                continue
+            id_producto = len(inventario) + 1
+            producto = {"id_producto": id_producto, "nombre": nombre, "cantidad": cantidad, "precio": precio, "activo": 1}
+            inventario.append(producto)
+            print("Producto registrado con éxito.")
+            break
+        except ValueError:
+            print("Entrada invalidad, intente de nuevo.")
 
+def modificar_producto():
+    nombre = input("Nombre del producto a modificar: ")
+    for producto in inventario:
+        if producto["nombre"] == nombre:
+            print(f"Producto actual: {producto}")
 
+            #Modificar nombre
+            nuevo_nombre = input("Nuevo nombre (dejar en blanco para no modificar): ")
+            if nuevo_nombre.strip(): #Verifica si la cadena no esta vacia
+                 producto["nombre"] =  nuevo_nombre
+            
+            #Modificar cantidad
+            nueva_cantidad = input("Nueva cantidad (dejar en blanco para no modificar): ")
+            if nueva_cantidad.strip():
+                try:
+                    producto["cantidad"] = int(nueva_cantidad)
+                except ValueError:
+                    print("Cantidad invalida, debe de ser un numero, reintente")
+
+            #Modificar precio
+            nuevo_precio = input("Nuevo precio (dejar en blanco para no modificar): ")
+            if nuevo_precio.strip():
+                try:
+                    producto["precio"] = float(nuevo_precio)
+                except ValueError:
+                    print("Precio invalido, debe de ser un numero con decimales, reintente")
+            
+            #Modificar estado
+            if producto["activo"] == 0:
+                res = input("¿Desea activar el producto? (si o no): ").strip().lower()
+                if res == "si" :
+                    producto["activo"] = 1
+                if res == "no":
+                    producto["activo"] = 0
+                else :
+                    print("Opcion invalida, reintente")
+            elif producto["activo"] == 1:
+                res = input("¿Desea desactivar el producto? (si o no): ").strip().lower()
+                if res == "si" :
+                    producto["activo"] = 0
+                if res == "no":
+                    producto["activo"] = 1
+                else :
+                    print("Opcion invalida, reintente")
+            print("Producto modificado con exito")
+            return
+    print("Producto no encontrado")
 
 # --- Sistema TPV ---
-
-# Genera la nueva venta y le asigna un ID
 def nueva_venta():
     nombre_cliente = input("Nombre del cliente: ")
     total_productos = 0
@@ -55,7 +113,6 @@ def nueva_venta():
     print("Venta creada: ", id_venta)
     venta_producto(id_venta)
 
-# Agrega un producto a la venta con el id
 def agregar_producto_venta(id_venta, producto, cantidad, precio):
     nombre = producto ["nombre"]
     id_venta = id_venta
@@ -65,7 +122,6 @@ def agregar_producto_venta(id_venta, producto, cantidad, precio):
     producto = {"id": id_venta, "cantidad": cantidad, "nombre": nombre, "precio": precio, "subtotal": subtotal}
     articulos_vendidos.append(producto) 
 
-# Cierra la venta y la totaliza
 def totalizar_venta(id_venta):
     id_venta = id_venta
     articulos = 0
@@ -81,7 +137,6 @@ def totalizar_venta(id_venta):
     print("Venta finalizada total: ", total)
     print("Numero de Articulos: ", articulos)
 
-# Menu TPV
 def venta_producto(id):
     while True:
         id_venta = id
@@ -94,7 +149,7 @@ def venta_producto(id):
             nombre = input("Nombre del producto: ")
             encontrado = False
             for producto in inventario:
-                if producto["nombre"] == nombre:
+                if producto["nombre"] == nombre and producto["activo"] == 1:
                     encontrado = True
                     print(f"Existencia: {producto['cantidad']}")
                     cantidad = int(input("Cantidad a vender: "))
@@ -116,19 +171,24 @@ def venta_producto(id):
             totalizar_venta(id_venta)
             break
 
-
 # --- Reportes ---
-# Muestra los productos en stock
 def mostrar_inventario():
     print("\n-- Inventario --")
     for producto in inventario:
-        print(f"Nombre: {producto['nombre']}, Cantidad: {producto['cantidad']}, Precio: {producto['precio']} ")
+        if producto["activo"] == 1:
+            print(f"Nombre: {producto['nombre']}, Cantidad: {producto['cantidad']}, Precio: {producto['precio']} Activo")
+        if producto["activo"] == 0:
+            print(f"Nombre: {producto['nombre']}, Cantidad: {producto['cantidad']}, Precio: {producto['precio']} Inactivo")
+    print("Total de productos: ", len(inventario))
 
-# Muestra todas las ventas 
 def mostrar_ventas():
     print("\n-- Ventas del dia --")
+    cantidad_ventas = 0
+    producto_mas_vendido = ""
     for venta in ventas:
         print(f"Nombre de Cliente: {venta['nombre_cliente']}, Articulos: {venta['total_productos']}, Total Venta: ${venta['total']}, Fecha de compra: {venta['fecha']} ")
+        cantidad_ventas += 1
+    print(f"Total de ventas: {cantidad_ventas}")
 
 def alerta_inventario_bajo(nombre=None):
     if nombre is None:
@@ -140,13 +200,12 @@ def alerta_inventario_bajo(nombre=None):
             if nombre == producto["nombre"] and producto["cantidad"] < 5:
                 print(f"¡Atención! {producto['nombre']} tiene solo {producto['cantidad']} unidades en stock.")
 
-
-# --- Menu principal ----
-
+# --- Menu principal ---
 cargar_datos()
 while True:
     print("\n-- Menú --")
     print("1. Registrar producto")
+    print("MP. Modificar Producto")
     print("2. Mostrar inventario")
     print("3. Nueva Venta")
     print("4. Reporte de Ventas")
@@ -156,6 +215,8 @@ while True:
 
     if opcion == "1":
         registrar_producto()
+    elif opcion == "MP":
+        modificar_producto()
     elif opcion == "2":
         mostrar_inventario()
     elif opcion == "3":
@@ -171,4 +232,3 @@ while True:
         print("Opcion invalidad. Intente de nuevo.")
 
 
-    
