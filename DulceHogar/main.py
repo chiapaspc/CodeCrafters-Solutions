@@ -1,5 +1,6 @@
 #Sistema de gestión de inventario y ventas para Dulce Hogar
 import json
+from datetime import date
 
 inventario = []
 ventas = []
@@ -38,6 +39,7 @@ def registrar_producto():
     print("Producto registrado con éxito.")
 
 
+
 # --- Sistema TPV ---
 
 # Genera la nueva venta y le asigna un ID
@@ -46,7 +48,9 @@ def nueva_venta():
     total_productos = 0
     total = 0.0
     id_venta = len(ventas) + 1
-    venta = {"nombre_cliente": nombre_cliente, "total_productos": total_productos, "total": total, "id" : id_venta}
+    #se convierte la fecha a Str porque Json no admite formatos date o datetime
+    fecha = str(date.today())
+    venta = {"id" : id_venta, "nombre_cliente": nombre_cliente, "total_productos": total_productos, "total": total, "fecha": fecha}
     ventas.append(venta)
     print("Venta creada: ", id_venta)
     venta_producto(id_venta)
@@ -99,7 +103,10 @@ def venta_producto(id):
                             agregar_producto_venta(id_venta, producto, cantidad, precio)
                             producto["cantidad"]-= cantidad
                             print(f"Producto agregado correctamente. Stock restante: {producto['cantidad']}")
-                            print(articulos_vendidos)
+                            #Agregamos una alerta si el inventario es menor a 5
+                            alerta_inventario_bajo(nombre)
+                            #debug
+                            #print(articulos_vendidos)
                             break
                     else:
                         print("No hay suficiente stock disponible.")
@@ -121,7 +128,18 @@ def mostrar_inventario():
 def mostrar_ventas():
     print("\n-- Ventas del dia --")
     for venta in ventas:
-        print(f"Nombre de Cliente: {venta['nombre_cliente']}, Articulos: {venta['total_productos']}, Total Venta: ${venta['total']} ")
+        print(f"Nombre de Cliente: {venta['nombre_cliente']}, Articulos: {venta['total_productos']}, Total Venta: ${venta['total']}, Fecha de compra: {venta['fecha']} ")
+
+def alerta_inventario_bajo(nombre=None):
+    if nombre is None:
+        for producto in inventario:
+            if producto["cantidad"] < 5:
+                print(f"¡Atención! {producto['nombre']} tiene solo {producto['cantidad']} unidades en stock.")
+    else :
+        for producto in inventario:
+            if nombre == producto["nombre"] and producto["cantidad"] < 5:
+                print(f"¡Atención! {producto['nombre']} tiene solo {producto['cantidad']} unidades en stock.")
+
 
 # --- Menu principal ----
 
@@ -132,7 +150,8 @@ while True:
     print("2. Mostrar inventario")
     print("3. Nueva Venta")
     print("4. Reporte de Ventas")
-    print("5. Salir")
+    print("5. Mostrar productos con inventario bajo")
+    print("6. Salir")
     opcion = input("Seleccione una opción: ")
 
     if opcion == "1":
@@ -144,6 +163,8 @@ while True:
     elif opcion == "4":
         mostrar_ventas()
     elif opcion == "5":
+        alerta_inventario_bajo()
+    elif opcion == "6":
         guardar_datos()
         break
     else:
