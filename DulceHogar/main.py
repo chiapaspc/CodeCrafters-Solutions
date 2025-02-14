@@ -1,6 +1,11 @@
 #Sistema de gestión de inventario y ventas para Dulce Hogar
 import json
 from datetime import date
+from tabulate import tabulate
+import os
+print("Directorio actual:", os.getcwd())
+
+
 
 inventario = []
 ventas = []
@@ -8,12 +13,12 @@ articulos_vendidos = []
 
 # --- Carga y guardado de datos. ---
 def guardar_datos():
-    with open("inventario.json", "w") as archivo:
-        json.dump(inventario, archivo)
-    with open("ventas.json", "w") as archivo:
-        json.dump(ventas, archivo)
-    with open("articulos_vendidos.json", "w") as archivo:
-        json.dump(articulos_vendidos, archivo)
+    archivos = ["inventario.json", "ventas.json", "articulos_vendidos.json"]
+    datos = [inventario, ventas, articulos_vendidos]
+
+    for archivo, contenido in zip(archivos, datos):
+        with open(archivo, "w") as f:
+            json.dump(contenido, f)
     print("Datos guardados correctamente")
 
 def cargar_datos():
@@ -174,11 +179,9 @@ def venta_producto(id):
 # --- Reportes ---
 def mostrar_inventario():
     print("\n-- Inventario --")
-    for producto in inventario:
-        if producto["activo"] == 1:
-            print(f"Nombre: {producto['nombre']}, Cantidad: {producto['cantidad']}, Precio: {producto['precio']} Activo")
-        if producto["activo"] == 0:
-            print(f"Nombre: {producto['nombre']}, Cantidad: {producto['cantidad']}, Precio: {producto['precio']} Inactivo")
+    headers = ["Nombre", "Cantidad", "Precio", "Estado"]
+    rows = [[p["nombre"], p["cantidad"], p["precio"], "Activo" if p["activo"] else "Inactivo"] for p in inventario]
+    print(tabulate(rows, headers=headers, tablefmt="grid"))
     print("Total de productos: ", len(inventario))
 
 def mostrar_ventas():
@@ -204,7 +207,7 @@ def alerta_inventario_bajo(nombre=None):
 cargar_datos()
 while True:
     print("\n-- Menú --")
-    print("1. Registrar producto")
+    print("1. Agregar producto")
     print("MP. Modificar Producto")
     print("2. Mostrar inventario")
     print("3. Nueva Venta")
