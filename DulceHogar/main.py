@@ -2,8 +2,6 @@
 import json
 from datetime import date
 from tabulate import tabulate
-import os
-print("Directorio actual:", os.getcwd())
 
 
 

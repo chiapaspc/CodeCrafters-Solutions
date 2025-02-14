@@ -1,1 +1,1 @@
-[{"id_producto": 1, "nombre": "concha", "cantidad": 99, "precio": 12.0, "activo": 1}]
+[{"id_producto": 1, "nombre": "concha", "cantidad": 99, "precio": 12.0, "activo": 1}, {"id_producto": 2, "nombre": "conchita", "cantidad": 99, "precio": 5.0, "activo": 1}, {"id_producto": 3, "nombre": "cuerno", "cantidad": 99, "precio": 14.0, "activo": 1}, {"id_producto": 4, "nombre": "cuernito", "cantidad": 99, "precio": 6.0, "activo": 1}]
