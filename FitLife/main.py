@@ -7,6 +7,29 @@ usuarios = []
 entrenamientos = []
 progreso = []
 
+# --- Carga y guardado de datos. ---
+def guardar_datos():
+    archivos = ["usuarios.json", "entrenamientos.json", "progreso.json"]
+    datos = [usuarios, entrenamientos, progreso]
+
+    for archivo, contenido in zip(archivos, datos):
+        with open(archivo, "w") as f:
+            json.dump(contenido, f)
+    print("Datos guardados correctamente")
+
+def cargar_datos():
+    try:
+        with open("usuarios.json", "r") as archivo:
+            usuarios.extend(json.load(archivo))
+        with open("entrenamientos.json", "r") as archivo:
+            entrenamientos.extend(json.load(archivo))
+        with open("progreso.json", "r") as archivo:
+            progreso.extend(json.load(archivo))
+        print("Datos cargados correctamente.")
+    except FileNotFoundError:
+        print("No se encontraron los archivos de datos. Se iniciara con datos vacios.")
+
+# --- Usuarios ---
 def registro_usuarios():
     id_usuario = len(usuarios) + 1
     nombre = input("Nombre: ")
@@ -21,10 +44,13 @@ def registro_usuarios():
         print("Error al registrar usuario")
 
 def mostrar_usuarios():
-    for usuario in usuarios:
-        print(usuario)
+    print("\n-- Usuarios --")
+    headers = ["Id", "Nombre", "Edad", "Pesos", "Altura"]
+    rows = [[u["id_usuario"], u["nombre"], u["edad"], u["peso"], u["altura"]] for u in usuarios]
+    print(tabulate(rows, headers=headers, tablefmt="grid"))
+    print("Total de usuarios: ", len(usuarios))
 
-
+# --- Entrenamientos ---
 def crear_entrenamiento(): 
     id_entrenamiento = len(entrenamientos) + 1
     tipo = input("Tipo de entrenamiento (cardio, pesas): ")
@@ -38,8 +64,13 @@ def crear_entrenamiento():
         print("Error al registrar entrenamiento")
 
 def mostrar_entrenamientos():
-    for entrenamiento in entrenamientos:
-        print(entrenamiento)
+    print("\n-- Entrenamientos --")
+    headers = ["Id", "Tipo de Entrenamiento", "Duración (mins)", "Calorias Quemadas (kcal)"]
+    rows = [[e["id_entrenamiento"], e["tipo"], e["duracion"], e["calorias"]] for e in entrenamientos]
+    print(tabulate(rows, headers=headers, tablefmt="grid"))
+    print("Total de entrenamientos: ", len(entrenamientos))
+
+# --- Progreso ---
 
 def asignar_entrenamiento():
     id_usuario = int(input("Ingrese el id del usuario: "))
@@ -61,8 +92,9 @@ def mostrar_avances(id_usuario):
         if avance["id_usuario"] == id_usuario:
             print(avance)
 
-
+cargar_datos()
 while True:
+   
     print("\n Menu de opciones")    
     print("1. Registrar usuario")
     print("2. Mostrar usuarios")    
@@ -86,6 +118,7 @@ while True:
         id_usuario = int(input("Ingrese el id del usuario: "))
         mostrar_avances(id_usuario)
     elif opcion == 7:
+        guardar_datos()
         break
     else:
         print("Opción incorrecta")
