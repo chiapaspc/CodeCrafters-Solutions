@@ -1,12 +1,12 @@
-#Sistema de gestion de TI en SICT
+# Sistema de gestion de TI en SICT
 
 Proyecto para gestionar varias tareas en el area de Tecnologias de Informacion en SICT, Chiapas.
 
-#Tecnologia
+# Tecnologia
 
-Se usara Boostrap y CodeIgniter 4
+Se usara Boostrap y CodeIgniter 4.
 
-#Funcionalidades
+# Funcionalidades
 
     - Usuarios
         -- id_usuario (autoinc), nombre, apellidos, area
